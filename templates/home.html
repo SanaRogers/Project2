@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+          integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+          crossorigin=""/>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <title>Home</title>
+    <style>
+        #mapid {
+            height: 250px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">AR panel</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="active nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="/yelp_restaurant">Yelp Restaurant  <span class="sr-only">(current)</span></a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<div class="container">
+    <form method="post">
+
+        <div class="form-row mx-3 my-4">
+            <div class="form-group col-md-2">
+                <select class="form-control" id="state" name="state">
+                    <option selected value="">Choose State...</option>
+                    {% for obj in _li_state %}
+                        <option value="{{ obj }}">{{ obj }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <select class="form-control" id="city" name="city">
+                    <option selected value="">Choose City...</option>
+                    {% for obj in _li_city %}
+                        <option value="{{ obj }}">{{ obj }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <select class="form-control" id="first_rest" name="first_rest" required>
+                    <option selected>Choose 1st Restaurant...</option>
+                    {% for obj in _li_rest_dropdown %}
+                        <option value="{{ obj }}">{{ obj }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <select class="form-control" id="second_rest" name="second_rest" required>
+                    <option selected>Choose 2nd Restaurant...</option>
+                    {% for obj in _li_rest_dropdown %}
+                        <option value="{{ obj }}">{{ obj }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Get Graph</button>
+            </div>
+            <div class="form-group" style="padding-left: 5px;">
+                <a href="/" class="btn btn-success">Reset</a>
+            </div>
+        </div>
+    </form>
+    <div class="container">
+        <div id="mapid"></div>
+    </div>
+    <!-- Add a link -->
+    <div class="container row">
+        <div class="container col-md-6">
+            <div id='divOnly_sales'><!-- Plotly chart will be drawn inside this DIV --></div>
+        </div>
+        <div class="container col-md-6" style="height: 300px !important;">
+            <div id='divOnly_meals'><!-- Plotly chart will be drawn inside this DIV --></div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="container">
+            <div id='myDiv'><!-- Plotly chart will be drawn inside this DIV --></div>
+        </div>
+    </div>
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+{#<script src="https://d3js.org/d3.v6.min.js"></script>#}
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script scr="{{ url_for('static', filename='d3app.js') }}"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin="">
+</script>
+
+<script>
+
+    var mymap = L.map('mapid').setView([40.68295, -73.9708], 3);
+    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibHljb3JlOSIsImEiOiJja212djZydzEwOHRoMnZtOWs3aGh0MHBzIn0.NdDlN3jsqIDSIqgYJOqF9Q', {
+        attribution: '--',
+        maxZoom: 18,
+        id: 'mapbox/streets-v11',
+        tileSize: 512,
+        zoomOffset: -1,
+        accessToken: 'your.mapbox.access.token'
+    }).addTo(mymap);
+    {% for coordinate in _li_coordinates %}
+        var marker = L.marker([{{ coordinate.latitude }}, {{ coordinate.longitude }}]).addTo(mymap);
+        marker.bindPopup("<b>{{ coordinate.city }}!</b>").openPopup();
+    {% endfor %}
+</script>
+
+<script type=text/javascript>
+    $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
+<script>
+
+    $(document).ready(function () {
+        $('#city').bind('change', function () {
+            $.getJSON($SCRIPT_ROOT + '/get_rest_data/', {
+                city: $(this).val(),
+            }, function (data) {
+                debugger;
+                $("#first_rest").empty();
+                $("#second_rest").empty();
+                $("#first_rest").append('<option selected value="">Choose 1st Restaurant...</option>');
+                $("#second_rest").append('<option selected value="">Choose 2nd Restaurant...</option>');
+                for (var i = 0; i < data.length; i++) {
+                    $("#first_rest").append('<option value="' + data[i] + '">' + data[i] + '</option>')
+                    $("#second_rest").append('<option value="' + data[i] + '">' + data[i] + '</option>')
+                }
+            });
+        });
+
+        $('#state').bind('change', function () {
+            $.getJSON($SCRIPT_ROOT + '/get_cities_data/', {
+                state: $(this).val(),
+            }, function (data) {
+                debugger;
+                $("#city").empty();
+                $("#city").append('<option selected value="">Choose City...</option>');
+                for (var i = 0; i < data.length; i++) {
+                    $("#city").append('<option value="' + data[i] + '">' + data[i] + '</option>')
+                }
+
+            });
+        });
+    });
+</script>
+
+<script>
+
+    var rest = [];
+    {% for obj in _li_rest %}
+        rest.push("{{ obj }}");
+    {% endfor %}
+
+    var Only_sales = {
+        x: rest,
+        y: {{ _li_sales }},
+        type: 'bar'
+    };
+
+    var data = [Only_sales];
+
+    var layout = {
+        title: 'Sales of the Restaurants.',
+        showlegend: false,
+        width: 450,
+        height: 350,
+    };
+
+    Plotly.newPlot('divOnly_sales', data, layout, {displaylogo: false});
+
+    var Only_meals = {
+        x: rest,
+        y: {{ _li_mealserved }},
+        type: 'bar'
+    };
+
+    var data = [Only_meals];
+
+    var layout = {
+        colorway: ['#eb7e25'],
+        title: 'Meals Served by the Restaurants.',
+        width: 450,
+        height: 350,
+        showlegend: false
+    };
+
+    Plotly.newPlot('divOnly_meals', data, layout, {displaylogo: false});
+
+
+    var salestrace1 = {
+        x: rest,
+        y: {{ _li_sales }},
+        name: 'Sales',
+        type: 'bar'
+    };
+
+    var mealtrace2 = {
+        x: rest,
+        y: {{ _li_mealserved }},
+        name: 'Meal Served',
+        type: 'bar'
+    };
+
+    var data = [salestrace1, mealtrace2];
+
+    var layout = {barmode: 'group'};
+
+    Plotly.newPlot('myDiv', data, layout);
+
+</script>
+</body>
+</html>
